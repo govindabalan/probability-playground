@@ -15,8 +15,12 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Backup versions (optional - uncomment to exclude)
-# versions/
+# Backup versions
+versions/
+
+# Documentation (local only)
+PRD_ProbabilityGame.md
+DATA_SCHEMA_ProbabilityGame.md
 
 # Test artifacts
 playwright-report/

@@ -1,0 +1,38 @@
+{
+  "name": "probability-playground",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive web game teaching probability, compounding, and CAGR",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "lint": "node --check js/*.js && echo 'Syntax OK'",
+    "verify": "bash scripts/verify.sh",
+    "backup": "bash scripts/backup.sh",
+    "deploy": "bash scripts/deploy.sh"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "playwright": "^1.40.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/govindabalan/probability-playground.git"
+  },
+  "keywords": [
+    "education",
+    "finance",
+    "game",
+    "pwa",
+    "vanilla-js",
+    "canvas",
+    "probability",
+    "compounding",
+    "cagr"
+  ],
+  "author": "govindabalan",
+  "license": "Unlicense"
+}

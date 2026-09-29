@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn probability, compounding, and CAGR through interactive play">
+  <meta name="theme-color" content="#2563eb">
+  <title>Probability Playground</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/favicon.svg">
+  <link rel="apple-touch-icon" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/themes.css">
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1>Probability Playground</h1>
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme (system)">🌓</button>
+    </header>
+
+    <main class="main">
+      <div class="stats-bar" role="status" aria-live="polite">
+        <div class="stat">
+          <span class="label">Value</span>
+          <span id="statV" class="value">100.00</span>
+        </div>
+        <div class="stat">
+          <span class="label">Year</span>
+          <span id="statIter" class="value">0</span>
+        </div>
+        <div class="stat">
+          <span class="label">CAGR</span>
+          <span id="statCagr" class="value">0.00%</span>
+        </div>
+      </div>
+
+      <div class="chart-history-grid">
+        <section class="chart-section" aria-label="Portfolio history chart">
+          <div class="chart-toolbar">
+            <label class="toggle">
+              <input type="checkbox" id="logScale" aria-label="Use logarithmic scale">
+              Log scale
+            </label>
+          </div>
+          <div id="chart" class="chart"></div>
+        </section>
+
+        <section class="history-section" aria-label="Recent history">
+          <div class="history-toolbar">
+            <h3>Recent History</h3>
+            <button id="historyExpand" class="btn ghost btn-sm" aria-label="Expand full history" aria-expanded="false">
+              <span class="expand-icon">▼</span> Show All
+            </button>
+          </div>
+          <div id="historyTable" class="history-table-container">
+            <table class="history-table" aria-label="Last 5 iterations">
+              <thead>
+                <tr>
+                  <th scope="col">Year</th>
+                  <th scope="col">r (%)</th>
+                  <th scope="col">Return (%)</th>
+                  <th scope="col">Choice</th>
+                </tr>
+              </thead>
+              <tbody id="historyBody">
+                <tr class="history-empty"><td colspan="4">No history yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div class="controls">
+        <div class="control-row">
+          <button id="btnUp" class="btn primary btn-lg" aria-label="Bet Up (ArrowUp or W)">↑ Up</button>
+          <button id="btnDown" class="btn danger btn-lg" aria-label="Bet Down (ArrowDown or S)">↓ Down</button>
+        </div>
+
+        <div class="control-row">
+          <button id="btnReset" class="btn ghost">Reset</button>
+        </div>
+
+        <div class="seed-row">
+          <button id="btnExport" class="btn ghost">Export</button>
+          <input type="file" id="importFile" class="file-input" accept=".json" hidden>
+          <button id="btnImport" class="btn ghost">Import</button>
+        </div>
+      </div>
+
+      <details class="learn-panel">
+        <summary>Learn: Why CAGR ≠ Average Return</summary>
+        <div class="learn-content">
+          <!-- Slides injected by JS -->
+        </div>
+      </details>
+
+      <!-- Seed info - hidden by default, accessible via info button -->
+      <div class="seed-info-section">
+        <button id="seedInfoBtn" class="info-btn" aria-label="About random seed">
+          <span class="info-icon">ℹ️</span>
+          <span>About Seed</span>
+        </button>
+        <div id="seedInfoPanel" class="info-panel hidden">
+          <h4>What is the Random Seed?</h4>
+          <p>The seed controls the random number generator. Same seed = same sequence of random numbers.</p>
+          <p><strong>Why it matters:</strong> You can share a seed with others to compare strategies on the exact same market conditions. Try "always Up" vs "always Down" with the same seed to see how decisions affect outcomes.</p>
+          <div class="seed-controls">
+            <label for="seedInput">Seed:</label>
+            <input type="number" id="seedInput" class="seed-input" placeholder="e.g. 42" aria-label="Random seed (optional)" min="0" max="4294967295">
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="footer">
+      <p>Built to teach investing intuition. <a href="https://github.com/" target="_blank" rel="noopener">Source</a> • <a href="#privacy">Privacy</a></p>
+    </footer>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

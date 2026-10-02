@@ -5,8 +5,8 @@ test.describe('Probability Playground', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:8080');
     await page.waitForLoadState('networkidle');
-    // Wait for app to initialize
-    await page.waitForFunction(() => window.__APP_LOADED === true, { timeout: 10000 });
+    // Wait for app to initialize - longer timeout for CI
+    await page.waitForFunction(() => window.__APP_LOADED === true, { timeout: 30000 });
   });
 
   test('loads without console errors', async ({ page }) => {

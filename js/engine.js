@@ -15,7 +15,7 @@ const INITIAL_VALUE = 100;
  * @returns {object} Statistics
  */
 export function computeStats(state) {
-  const { iteration, v, history, choices, randomDraws } = state;
+  const { iteration, v, history, choices, randomDraws, meanReturn, volatility } = state;
 
   if (iteration === 0) {
     return {
@@ -48,10 +48,10 @@ export function computeStats(state) {
 
   // Volatility (annualized std dev of log returns)
   const variance = logReturns.reduce((sum, r) => sum + (r - meanLogReturn) ** 2, 0) / iteration;
-  const volatility = Math.sqrt(variance);
+  const returnVolatility = Math.sqrt(variance);
 
   // Sharpe ratio (risk-free = 0)
-  const sharpeRatio = volatility > 0 ? geometricMean / volatility : 0;
+  const sharpeRatio = returnVolatility > 0 ? geometricMean / returnVolatility : 0;
 
   // Max drawdown
   let peak = INITIAL_VALUE;
@@ -92,7 +92,8 @@ export function step(state, rng, choice) {
     throw new Error('Game already finished');
   }
 
-  const r = sampleReturn(rng);
+  const { meanReturn = 0, volatility = 25 } = state;
+  const r = sampleReturn(rng, meanReturn, volatility);
   const factor = choice === 'U' ? (1 + r / 100) : (1 - r / 100);
   let newV = state.v * factor;
 

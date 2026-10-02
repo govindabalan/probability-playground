@@ -37,6 +37,8 @@ export function initUI() {
     ...savedState,
     seed: urlParams.seed !== null ? urlParams.seed : savedState.seed,
     theme: urlParams.theme !== undefined ? urlParams.theme : savedState.theme,
+    meanReturn: urlParams.meanReturn !== undefined ? urlParams.meanReturn : savedState.meanReturn,
+    volatility: urlParams.volatility !== undefined ? urlParams.volatility : savedState.volatility,
   };
 
   // If URL had a seed, regenerate RNG with it
@@ -107,6 +109,9 @@ function cacheElements() {
     // Seed info
     seedInfoBtn: document.getElementById('seedInfoBtn'),
     seedInfoPanel: document.getElementById('seedInfoPanel'),
+    meanReturnInput: document.getElementById('meanReturnInput'),
+    volatilityInput: document.getElementById('volatilityInput'),
+    btnApplyParams: document.getElementById('btnApplyParams'),
   };
 }
 
@@ -153,6 +158,11 @@ function bindEvents() {
   // Seed info panel toggle
   if (els.seedInfoBtn) {
     els.seedInfoBtn.addEventListener('click', toggleSeedInfo);
+  }
+
+  // Apply params button
+  if (els.btnApplyParams) {
+    els.btnApplyParams.addEventListener('click', handleApplyParams);
   }
 }
 
@@ -344,6 +354,10 @@ function render() {
   els.seedInput.value = state.seed ?? '';
   els.seedInput.placeholder = state.seed ? '' : 'e.g. 42';
 
+  // Mean/Vol inputs
+  if (els.meanReturnInput) els.meanReturnInput.value = state.meanReturn ?? 0;
+  if (els.volatilityInput) els.volatilityInput.value = state.volatility ?? 25;
+
   // Disable controls if finished
   const finished = !canContinue(state);
   els.btnUp.disabled = finished;
@@ -427,6 +441,37 @@ function toggleSeedInfo() {
   if (!els.seedInfoPanel) return;
   const isHidden = els.seedInfoPanel.classList.toggle('hidden');
   els.seedInfoBtn.setAttribute('aria-expanded', !isHidden);
+}
+
+/**
+ * Handles Apply Params button - applies meanReturn and volatility, then resets game
+ */
+async function handleApplyParams() {
+  const meanReturn = parseFloat(els.meanReturnInput?.value) || 0;
+  const volatility = parseFloat(els.volatilityInput?.value) || 25;
+
+  // Validate
+  if (meanReturn < -50 || meanReturn > 50) {
+    showToast('Average Return must be between -50 and 50');
+    return;
+  }
+  if (volatility < 1 || volatility > 100) {
+    showToast('Volatility must be between 1 and 100');
+    return;
+  }
+
+  // Update state
+  state.meanReturn = meanReturn;
+  state.volatility = volatility;
+  saveState(state);
+  recordEvent({ type: 'params_change', iteration: state.iteration, payload: { meanReturn, volatility } });
+
+  // Reset game with new params
+  state = reset(state);
+  rng = createRNGFromState(state);
+  saveState(state, true);
+  render();
+  showToast(`Parameters applied: Mean ${meanReturn}%, Vol ${volatility}%`);
 }
 
 /**

@@ -451,3 +451,37 @@
   min-width: 120px;
   max-width: 200px;
 }
+
+/* ── Return Distribution Parameters ── */
+.info-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: var(--space-md) 0;
+}
+
+.param-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.param-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.param-group label {
+  font-weight: 500;
+  color: var(--fg);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.param-input {
+  width: 100%;
+  min-width: 100px;
+  max-width: 140px;
+}

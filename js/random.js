@@ -61,13 +61,18 @@ function cryptoRandomUint32() {
 }
 
 /**
- * Samples a normal distribution clamped to [-25, 25]
- * μ = 0, σ = 12.5 (so ~95% within bounds)
+ * Samples a normal distribution with configurable mean and volatility
+ * μ = meanReturn, σ = volatility / 1.96 (so ~95% within ±volatility)
  * @param {object} rng - RNG object with nextNormal method
+ * @param {number} meanReturn - Average return in percent (default 0)
+ * @param {number} volatility - 95% range in percent (default 25)
  * @returns {number} Clamped normal sample
  */
-export function sampleReturn(rng) {
-  return rng.nextNormal(0, 12.5, -25, 25);
+export function sampleReturn(rng, meanReturn = 0, volatility = 25) {
+  const std = volatility / 1.96;
+  const min = meanReturn - 3 * std;
+  const max = meanReturn + 3 * std;
+  return rng.nextNormal(meanReturn, std, min, max);
 }
 
 /**
@@ -93,7 +98,7 @@ export function generateSeed() {
 
 /**
  * Creates a shareable URL with current settings
- * @param {object} params - { seed, speedMs, logScale, theme, autoPlay }
+ * @param {object} params - { seed, speedMs, logScale, theme, autoPlay, meanReturn, volatility }
  * @returns {string}
  */
 export function createShareURL(params) {
@@ -103,6 +108,8 @@ export function createShareURL(params) {
   if (params.logScale !== undefined) url.searchParams.set('log', params.logScale ? '1' : '0');
   if (params.theme && params.theme !== 'system') url.searchParams.set('theme', params.theme);
   if (params.autoPlay) url.searchParams.set('auto', '1');
+  if (params.meanReturn !== undefined) url.searchParams.set('mean', String(params.meanReturn));
+  if (params.volatility !== undefined) url.searchParams.set('vol', String(params.volatility));
   return url.toString();
 }
 
@@ -118,5 +125,7 @@ export function parseShareURL() {
     logScale: params.has('log') ? params.get('log') === '1' : false,
     theme: params.has('theme') ? params.get('theme') : 'system',
     autoPlay: params.has('auto') ? params.get('auto') === '1' : false,
+    meanReturn: params.has('mean') ? parseFloat(params.get('mean')) : 0,
+    volatility: params.has('vol') ? parseFloat(params.get('vol')) : 25,
   };
 }

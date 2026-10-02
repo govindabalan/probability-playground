@@ -27,6 +27,8 @@ export const DEFAULT_STATE = {
   speedMs: 500,
   logScale: false,
   theme: 'system',
+  meanReturn: 0,
+  volatility: 25,
 };
 
 /**
@@ -73,6 +75,8 @@ export function validateState(stored) {
   state.logScale = Boolean(state.logScale);
   state.autoPlay = Boolean(state.autoPlay);
   state.theme = ['light', 'dark', 'system'].includes(state.theme) ? state.theme : 'system';
+  state.meanReturn = Number.isFinite(state.meanReturn) ? Math.max(-50, Math.min(50, state.meanReturn)) : 0;
+  state.volatility = Number.isFinite(state.volatility) ? Math.max(1, Math.min(100, state.volatility)) : 25;
 
   // Validate seed
   state.seed = parseSeed(state.seed);
@@ -166,6 +170,8 @@ export function exportState(state, metadata = {}) {
     metadata: {
       totalIterations: 25000,
       seed: state.seed,
+      meanReturn: state.meanReturn,
+      volatility: state.volatility,
       ...metadata,
     },
   };
@@ -185,6 +191,12 @@ export function importState(json) {
     // Preserve seed from export if present
     if (parsed.metadata?.seed !== undefined) {
       state.seed = parseSeed(parsed.metadata.seed);
+    }
+    if (parsed.metadata?.meanReturn !== undefined) {
+      state.meanReturn = parsed.metadata.meanReturn;
+    }
+    if (parsed.metadata?.volatility !== undefined) {
+      state.volatility = parsed.metadata.volatility;
     }
     return state;
   } catch (e) {

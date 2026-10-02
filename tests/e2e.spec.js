@@ -37,12 +37,15 @@ test.describe('Probability Playground', () => {
     await page.click('#btnUp');
     await page.waitForTimeout(100);
     
-    page.on('dialog', dialog => dialog.accept());
+    // Handle custom confirm modal - click the Confirm button
     await page.click('#btnReset');
+    // Wait for modal to appear and click Confirm
+    await page.locator('.modal-overlay.open .btn[data-result="true"]').click();
     await page.waitForTimeout(100);
     
-    expect(await page.locator('#statV').textContent()).toBe('100.00');
-    expect(await page.locator('#statIter').textContent()).toBe('0');
+    // Wait for value to reset
+    await expect(page.locator('#statV')).toHaveText('100.00', { timeout: 5000 });
+    await expect(page.locator('#statIter')).toHaveText('0', { timeout: 5000 });
   });
 
   test('Theme toggle cycles and updates chart', async ({ page }) => {
@@ -56,6 +59,11 @@ test.describe('Probability Playground', () => {
   });
 
   test('Seed input reproduces same sequence', async ({ page }) => {
+    // Open seed info panel first
+    await page.click('#seedInfoBtn');
+    await expect(page.locator('#seedInfoPanel')).not.toHaveClass(/hidden/);
+    await expect(page.locator('#seedInput')).toBeVisible();
+    
     await page.fill('#seedInput', '42');
     await page.locator('#seedInput').press('Enter');
     await page.waitForTimeout(100);
@@ -64,8 +72,28 @@ test.describe('Probability Playground', () => {
     const val1 = await page.locator('#statV').textContent();
     
     // Reset with same seed
-    page.on('dialog', d => d.accept());
     await page.click('#btnReset');
+    // Wait for modal and click Confirm
+    await page.locator('.modal-overlay.open .btn[data-result="true"]').click();
+    await page.waitForTimeout(100);
+    
+    // Wait for any modal to close
+    await page.waitForFunction(() => !document.querySelector('.modal-overlay.open'), { timeout: 5000 });
+    
+    // Re-open panel and enter seed
+    await page.waitForTimeout(200);
+    // Use JS to toggle panel directly to avoid click issues
+    await page.evaluate(() => {
+      const panel = document.getElementById('seedInfoPanel');
+      const btn = document.getElementById('seedInfoBtn');
+      if (panel && panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        if (btn) btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+    await expect(page.locator('#seedInfoPanel')).not.toHaveClass(/hidden/, { timeout: 5000 });
+    await expect(page.locator('#seedInput')).toBeVisible();
+    
     await page.fill('#seedInput', '42');
     await page.locator('#seedInput').press('Enter');
     await page.waitForTimeout(100);

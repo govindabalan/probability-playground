@@ -47,7 +47,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm ci
@@ -58,8 +58,15 @@ jobs:
       - name: Start HTTP server
         run: |
           python3 -m http.server 8080 &
-          sleep 3
-          curl -sf http://localhost:8080/ > /dev/null
+          sleep 5
+          # Wait for server to be fully ready
+          for i in {1..10}; do
+            if curl -sf http://localhost:8080/ > /dev/null; then
+              echo "Server ready"
+              break
+            fi
+            sleep 2
+          done
 
       - name: Run Playwright tests
         run: npx playwright test --project=chromium

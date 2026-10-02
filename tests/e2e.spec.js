@@ -5,6 +5,8 @@ test.describe('Probability Playground', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:8080');
     await page.waitForLoadState('networkidle');
+    // Wait for app to initialize
+    await page.waitForFunction(() => window.__APP_LOADED === true, { timeout: 10000 });
   });
 
   test('loads without console errors', async ({ page }) => {
@@ -55,7 +57,8 @@ test.describe('Probability Playground', () => {
 
   test('Seed input reproduces same sequence', async ({ page }) => {
     await page.fill('#seedInput', '42');
-    await page.keyboard.press('Enter');
+    await page.locator('#seedInput').press('Enter');
+    await page.waitForTimeout(100);
     
     await page.click('#btnUp');
     const val1 = await page.locator('#statV').textContent();
@@ -64,7 +67,8 @@ test.describe('Probability Playground', () => {
     page.on('dialog', d => d.accept());
     await page.click('#btnReset');
     await page.fill('#seedInput', '42');
-    await page.keyboard.press('Enter');
+    await page.locator('#seedInput').press('Enter');
+    await page.waitForTimeout(100);
     await page.click('#btnUp');
     
     const val2 = await page.locator('#statV').textContent();
@@ -72,16 +76,25 @@ test.describe('Probability Playground', () => {
   });
 
   test('Return params apply and reset game', async ({ page }) => {
+    // Open seed info panel
     await page.click('#seedInfoBtn');
+    // Wait for panel to be visible
+    await expect(page.locator('#seedInfoPanel')).not.toHaveClass(/hidden/);
+    
+    // Wait for inputs to be visible and enabled
+    await expect(page.locator('#meanReturnInput')).toBeVisible();
+    await expect(page.locator('#volatilityInput')).toBeVisible();
+    await expect(page.locator('#btnApplyParams')).toBeVisible();
+    
     await page.fill('#meanReturnInput', '5');
     await page.fill('#volatilityInput', '20');
     page.on('dialog', d => d.accept());
     await page.click('#btnApplyParams');
     
     // Should reset to 100
-    expect(await page.locator('#statV').textContent()).toBe('100.00');
-    expect(await page.locator('#meanReturnInput').inputValue()).toBe('5');
-    expect(await page.locator('#volatilityInput').inputValue()).toBe('20');
+    await expect(page.locator('#statV')).toHaveText('100.00');
+    await expect(page.locator('#meanReturnInput')).toHaveValue('5');
+    await expect(page.locator('#volatilityInput')).toHaveValue('20');
   });
 
   test('Export/Import round-trips', async ({ page }) => {
@@ -123,6 +136,7 @@ test.describe('Probability Playground', () => {
   test('Desktop layout at ≥900px', async ({ page }) => {
     await page.setViewportSize({ width: 1000, height: 800 });
     await page.reload();
+    await page.waitForLoadState('networkidle');
     
     const chartSection = page.locator('.chart-section');
     const historySection = page.locator('.history-section');
@@ -135,6 +149,7 @@ test.describe('Probability Playground', () => {
   test('Mobile layout at <900px', async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 800 });
     await page.reload();
+    await page.waitForLoadState('networkidle');
     
     // History should stack below chart
     const chartSection = page.locator('.chart-section');
